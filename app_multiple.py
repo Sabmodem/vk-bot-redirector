@@ -89,9 +89,39 @@ class WebhookServer:
         logger.info("Setting up webhooks for all bots...")
         await self.bot_manager.setup_webhooks()
 
-def main():
+# def main():
+#     bot_manager = BotManager()
+#     from bot import create_bot
+#     for bot_name, bot_config in config.BOTS_SETTINGS['bots'].items():
+#         bot_token = bot_config['token']
+#         bot_id = bot_config['id']
+#         bot_instance = create_bot(
+#             token=bot_token,
+#             webhook_url=f'{config.WEBHOOK_URL}{config.WEBHOOK_PATH}{bot_id}', 
+#             webhook_title=bot_id
+#         )
+#         bot_manager.add_bot(bot_name, bot_instance)
+        
+#     from mailing import mailing_task
+#     asyncio.create_task(mailing_task(bot_manager.bots.values()))
+
+#     webhook_server = WebhookServer(bot_manager=bot_manager)
+#     uvicorn.run(
+#         webhook_server.app,
+#         host='0.0.0.0',
+#         port=8000
+#     )
+    
+async def main_async():
+    """
+    Asynchronous entry point for the application.
+    This function sets up the bots, starts the background mailing task,
+    and then starts the uvicorn server, all within the same asyncio event loop.
+    """
     bot_manager = BotManager()
     from bot import create_bot
+    
+    # Initialize all bot instances and add them to the manager
     for bot_name, bot_config in config.BOTS_SETTINGS['bots'].items():
         bot_token = bot_config['token']
         bot_id = bot_config['id']
@@ -102,15 +132,36 @@ def main():
         )
         bot_manager.add_bot(bot_name, bot_instance)
         
+    # Create the asyncio task for the mailing function.
+    # This task will run concurrently with the webhook server.
     from mailing import mailing_task
     asyncio.create_task(mailing_task(bot_manager.bots.values()))
 
+    # Initialize the webhook server
     webhook_server = WebhookServer(bot_manager=bot_manager)
-    uvicorn.run(
+    
+    # Run the uvicorn server asynchronously.
+    # We use a Server object to run it inside the existing event loop.
+    # The `await server.serve()` call will block until the server is shut down,
+    # but it does so in an async-friendly way, allowing other tasks to run.
+    server_config = uvicorn.Config(
         webhook_server.app,
         host='0.0.0.0',
         port=8000
     )
+    server = uvicorn.Server(server_config)
+    await server.serve()
+    
+def main():
+    """
+    The main synchronous entry point.
+    It starts the asyncio event loop and runs the main_async function.
+    """
+    try:
+        asyncio.run(main_async())
+    except KeyboardInterrupt:
+        # Handle graceful shutdown on Ctrl+C
+        print("Application shutting down.")    
             
 if __name__ == "main":
     main()
