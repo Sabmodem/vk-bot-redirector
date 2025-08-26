@@ -5,6 +5,7 @@ import logging
 from vkbottle import Bot
 from typing import Dict
 import config
+import asyncio
 
 logging.basicConfig(
     level=logging.INFO,
@@ -95,11 +96,14 @@ def main():
         bot_token = bot_config['token']
         bot_id = bot_config['id']
         bot_instance = create_bot(
-            token=bot_token, 
+            token=bot_token,
             webhook_url=f'{config.WEBHOOK_URL}{config.WEBHOOK_PATH}{bot_id}', 
             webhook_title=bot_id
         )
         bot_manager.add_bot(bot_name, bot_instance)
+        
+    from mailing import mailing_task
+    asyncio.create_task(mailing_task(bot_manager.bots.values()))
 
     webhook_server = WebhookServer(bot_manager=bot_manager)
     uvicorn.run(

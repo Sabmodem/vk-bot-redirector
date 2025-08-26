@@ -4,6 +4,7 @@ SQLALCHEMY_ECHO = os.getenv("SQLALCHEMY_ECHO", False)
 BOT_CONFIG_PATH = os.getenv("CONFIG_PATH", '/app/bots.yaml')
 WEBHOOK_URL = os.getenv("WEBHOOK_URL")
 WEBHOOK_PATH = os.getenv("WEBHOOK_PATH")
+MAILING_INTERVAL = os.getenv("MAILING_INTERVAL", 43200)
 
 import yaml
 def read_file(filename: str) -> str:

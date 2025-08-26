@@ -12,7 +12,8 @@ class Base(AsyncAttrs, DeclarativeBase):
 class User(Base):
     __tablename__ = 'user'
     
-    id: Mapped[str] = mapped_column(String, primary_key=True)
+    id: Mapped[int] = mapped_column(int, primary_key=True)
+    name: Mapped[str] = mapped_column(String)
     created_at: Mapped[datetime.datetime] = mapped_column(DateTime, default=datetime.datetime.utcnow)
 
 class Link(Base):
