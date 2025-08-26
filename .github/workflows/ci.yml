@@ -1,5 +1,5 @@
 # This workflow automates building a Docker image and pushing it to GitHub Container Registry (GHCR).
-# It triggers on a push to the 'main' branch, tagging the image with the latest tag in addition to the commit SHA.
+# It triggers on a push to the 'master' branch, tagging the image with the latest tag in addition to the commit SHA.
 
 name: Docker Image CI
 
@@ -7,7 +7,7 @@ name: Docker Image CI
 on:
   push:
     branches:
-      - main # Triggers the workflow on a push to the main branch
+      - master # Triggers the workflow on a push to the master branch
 
 # Permissions are crucial for the GITHUB_TOKEN to interact with packages
 permissions:
@@ -41,11 +41,11 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           # This configures the tag names based on the Git reference
-          # For pushes to 'main', it adds a 'latest' tag
+          # For pushes to 'master', it adds a 'latest' tag
           tags: |
             type=sha,format=long # Creates a tag with the full commit SHA
             type=ref,event=branch,enable=true,prefix=,suffix=,latest=true
-            type=raw,value=latest,enable=${{ github.ref_name == 'main' }}
+            type=raw,value=latest,enable=${{ github.ref_name == 'master' }}
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
