@@ -1,0 +1,56 @@
+# This workflow automates building a Docker image and pushing it to GitHub Container Registry (GHCR).
+# It triggers on a push to the 'main' branch, tagging the image with the latest tag in addition to the commit SHA.
+
+name: Docker Image CI
+
+# Controls when the workflow will run.
+on:
+  push:
+    branches:
+      - main # Triggers the workflow on a push to the main branch
+
+# Permissions are crucial for the GITHUB_TOKEN to interact with packages
+permissions:
+  contents: read # Allows checkout of the repository code
+  packages: write # Allows pushing the image to GHCR
+
+env:
+  # The registry is always ghcr.io for GitHub Container Registry
+  REGISTRY: ghcr.io
+  # The image name will be the repository owner/name, e.g., 'octocat/hello-world'
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  build_and_push:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4 # Checks out your repository code
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }} # Uses the username of the actor that triggered the workflow
+          password: ${{ secrets.GITHUB_TOKEN }} # Uses the GITHUB_TOKEN to authenticate
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          # This configures the tag names based on the Git reference
+          # For pushes to 'main', it adds a 'latest' tag
+          tags: |
+            type=sha,format=long # Creates a tag with the full commit SHA
+            type=ref,event=branch,enable=true,prefix=,suffix=,latest=true
+            type=raw,value=latest,enable=${{ github.ref_name == 'main' }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}

@@ -1,0 +1,7 @@
+vkbottle
+sqlalchemy
+pyyaml
+uvicorn
+fastapi
+alembic
+asyncpg
