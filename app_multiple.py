@@ -91,7 +91,7 @@ class WebhookServer:
 
 def main():
     bot_manager = BotManager()
-    from .bot import create_bot
+    from bot import create_bot
     for bot_name, bot_config in config.BOTS_SETTINGS['bots'].items():
         bot_token = bot_config['token']
         bot_id = bot_config['id']

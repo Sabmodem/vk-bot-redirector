@@ -3,7 +3,7 @@ from typing import List
 from vkbottle import API, Keyboard, KeyboardButtonColor, OpenLink
 from vkbottle.bot import Bot, Message
 from vkbottle.callback import BotCallback
-from .database import get_session_factory
+from database import get_session_factory
 import crud
 import models
 import random
