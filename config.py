@@ -14,4 +14,4 @@ def read_config():
     file = read_file(BOT_CONFIG_PATH)
     return yaml.safe_load(file)
 
-# BOTS_SETTINGS = read_config()
+BOTS_SETTINGS = read_config()
