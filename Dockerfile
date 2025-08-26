@@ -3,4 +3,4 @@ WORKDIR /app
 COPY requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
-CMD ["sh", "-c", "alembic upgrade head && python", "-c", "from app_multiple import main; main()"]
+CMD ["sh", "-c", "alembic upgrade head && python -c \"from app_multiple import main; main()\""]
