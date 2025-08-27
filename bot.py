@@ -49,6 +49,7 @@ def create_bot(
                 await crud.create_users(session, [models.User(id=message.peer_id, name=user_name)])
             except Exception as e:
                 logger.error('Error creating user', exc_info=True)
+                await session.rollback()
                 
             links: List[models.Link] = await crud.read_links(session)
             mailings: List[models.Mailing] = await crud.read_mailings(session)
