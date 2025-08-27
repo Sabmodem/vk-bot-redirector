@@ -8,6 +8,7 @@ from database import async_session_factory
 import logging
 import asyncio
 from config import MAILING_INTERVAL
+from time import time
 
 logging.basicConfig(
     level=logging.INFO,
@@ -31,7 +32,12 @@ async def mailing(bots: List[Bot]):
             text = random.choice(mailings).text.format(first_name=user.name)
             for bot in bots:
                 try:
-                    await bot.api.messages.send(user_id=user.id, message=text, keyboard=kb_json)
+                    await bot.api.messages.send(
+                        user_id=user.id,
+                        message=text,
+                        keyboard=kb_json,
+                        random_id=time()
+                    )
                 except Exception as e:
                     logger.error('Error sending message to user', exc_info=True)
                 
