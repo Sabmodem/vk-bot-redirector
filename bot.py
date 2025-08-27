@@ -54,3 +54,5 @@ def create_bot(
             kb.add(OpenLink(link.url, link.title), color=KeyboardButtonColor.POSITIVE).row()
         text = random.choice(mailings).text
         await message.answer(text.format(first_name=user_name), keyboard=kb.get_json())
+
+    return bot
