@@ -19,8 +19,8 @@ async def read_users(
     user_ids: List[uuid.UUID] = []
 ) -> List[models.User]:
     stmt = select(models.User).filter(models.User.id.in_(user_ids))
-    result = await session.scalars(stmt)
-    return list(result)
+    result = await session.execute(stmt)
+    return result.scalars().all()
 
 async def read_mailings(
     session: AsyncSession, 
@@ -29,8 +29,8 @@ async def read_mailings(
     stmt = select(models.Mailing)
     if len(mailing_ids) > 0:
         stmt = stmt.filter(models.Mailing.id.in_(mailing_ids))
-    result = await session.scalars(stmt)
-    return list(result)
+    result = await session.execute(stmt)
+    return result.scalars().all()
 
 async def read_links(
     session: AsyncSession, 
@@ -39,5 +39,5 @@ async def read_links(
     stmt = select(models.Link)
     if len(link_ids) > 0:
         stmt = stmt.filter(models.Link.id.in_(link_ids))
-    result = await session.scalars(stmt)
-    return list(result)
+    result = await session.execute(stmt)
+    return result.scalars().all()
