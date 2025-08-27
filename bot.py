@@ -3,7 +3,8 @@ from typing import List
 from vkbottle import API, Keyboard, KeyboardButtonColor, OpenLink
 from vkbottle.bot import Bot, Message
 from vkbottle.callback import BotCallback
-from database import get_session_factory
+from database import async_session_factory
+from sqlalchemy.ext.asyncio import AsyncSession
 import crud
 import models
 import random
@@ -41,18 +42,20 @@ def create_bot(
 
     @bot.on.message()
     async def handle_start(message: Message):
-        user_name = await get_user_name(message, bot)
-        try:
-            await crud.create_users(get_session_factory(), [models.User(id=message.peer_id, name=user_name)])
-        except Exception as e:
-            logger.error('Error creating user', exc_info=True)
-            
-        links: List[models.Link] = await crud.read_links(get_session_factory())
-        mailings: List[models.Mailing] = await crud.read_mailings(get_session_factory())
-        kb = Keyboard(inline=True)
-        for link in links:
-            kb.add(OpenLink(link.url, link.title), color=KeyboardButtonColor.POSITIVE).row()
-        text = random.choice(mailings).text
-        await message.answer(text.format(first_name=user_name), keyboard=kb.get_json())
+        session: AsyncSession
+        async with async_session_factory() as session:        
+            user_name = await get_user_name(message, bot)
+            try:
+                await crud.create_users(session, [models.User(id=message.peer_id, name=user_name)])
+            except Exception as e:
+                logger.error('Error creating user', exc_info=True)
+                
+            links: List[models.Link] = await crud.read_links(session)
+            mailings: List[models.Mailing] = await crud.read_mailings(session)
+            kb = Keyboard(inline=True)
+            for link in links:
+                kb.add(OpenLink(link.url, link.title), color=KeyboardButtonColor.POSITIVE).row()
+            text = random.choice(mailings).text
+            await message.answer(text.format(first_name=user_name), keyboard=kb.get_json())
 
     return bot
