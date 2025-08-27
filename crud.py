@@ -18,7 +18,9 @@ async def read_users(
     session: AsyncSession, 
     user_ids: List[uuid.UUID] = []
 ) -> List[models.User]:
-    stmt = select(models.User).filter(models.User.id.in_(user_ids))
+    stmt = select(models.User)
+    if len(user_ids) > 0:
+        stmt = stmt.filter(models.User.id.in_(user_ids))
     result = await session.execute(stmt)
     return result.scalars().all()
 

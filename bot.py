@@ -8,6 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 import crud
 import models
 import random
+from asyncpg.exceptions import UniqueViolationError
 
 logging.basicConfig(
     level=logging.INFO,
@@ -47,8 +48,11 @@ def create_bot(
             user_name = await get_user_name(message, bot)
             try:
                 await crud.create_users(session, [models.User(id=message.peer_id, name=user_name)])
+            except UniqueViolationError as e:
+                logger.error(f'User {message.peer_id}:{user_name} already exists')
+                await session.rollback()
             except Exception as e:
-                logger.error('Error creating user', exc_info=True)
+                logger.error('Unknown error during creating user', exc_info=True)
                 await session.rollback()
                 
             links: List[models.Link] = await crud.read_links(session)
