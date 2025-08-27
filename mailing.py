@@ -36,7 +36,7 @@ async def mailing(bots: List[Bot]):
                         user_id=user.id,
                         message=text,
                         keyboard=kb_json,
-                        random_id=time()
+                        random_id=int(time())
                     )
                 except Exception as e:
                     logger.error('Error sending message to user', exc_info=True)
