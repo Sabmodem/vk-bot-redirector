@@ -9,6 +9,7 @@ import logging
 import asyncio
 from config import MAILING_INTERVAL
 from time import time
+from vkbottle.exception_factory.base_exceptions import VKAPIError
 
 logging.basicConfig(
     level=logging.INFO,
@@ -38,6 +39,9 @@ async def mailing(bots: List[Bot]):
                         keyboard=kb_json,
                         random_id=int(time())
                     )
+                except VKAPIError as e:
+                    if e.code == 901:
+                        pass # Wrong user
                 except Exception as e:
                     logger.error('Error sending message to user', exc_info=True)
                 
