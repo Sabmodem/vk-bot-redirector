@@ -22,6 +22,7 @@ async def mailing(bots: List[Bot]):
         users: List[models.User] = await crud.read_users(session)
         links: List[models.Link] = await crud.read_links(session)
         mailings: List[models.Mailing] = await crud.read_mailings(session)
+        logger.info(f'''Mailing to {len(users)} users''')
         kb = Keyboard(inline=True)
         for link in links:
             kb.add(OpenLink(link.url, link.title), color=KeyboardButtonColor.POSITIVE).row()
