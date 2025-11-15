@@ -136,8 +136,8 @@ async def main_async():
         
     # Create the asyncio task for the mailing function.
     # This task will run concurrently with the webhook server.
-    from mailing import mailing_task
-    asyncio.create_task(mailing_task(bot_manager.bots.values()))
+    # from mailing import mailing_task
+    # asyncio.create_task(mailing_task(bot_manager.bots.values()))
 
     # Initialize the webhook server
     webhook_server = WebhookServer(bot_manager=bot_manager)
