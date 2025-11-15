@@ -125,6 +125,8 @@ async def main_async():
     for bot_name, bot_config in config.BOTS_SETTINGS['bots'].items():
         bot_token = bot_config['token']
         bot_id = bot_config['id']
+        webhook_url = f'{config.WEBHOOK_URL}{config.WEBHOOK_PATH}{bot_id}'
+        logger.info(f"Setting up webhook for {bot_name}: {webhook_url}")
         bot_instance = create_bot(
             token=bot_token,
             webhook_url=f'{config.WEBHOOK_URL}{config.WEBHOOK_PATH}{bot_id}', 
@@ -161,7 +163,7 @@ def main():
         asyncio.run(main_async())
     except KeyboardInterrupt:
         # Handle graceful shutdown on Ctrl+C
-        print("Application shutting down.")    
-            
+        logger.info("Application shutting down.")
+
 if __name__ == "main":
     main()
